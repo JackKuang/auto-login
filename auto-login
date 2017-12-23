@@ -33,16 +33,16 @@ ssh_copy_id="/usr/bin/ssh-copy-id"
   
 DATETIME=`date "+%F %T"`  
   
-success() {  
-    printf "\r[ \033[00;32m$DATETIME INFO\033[0m ]%s\n" "$1"  
-}  
-  
-warn() {  
-    printf "\r[\033[0;33m$DATETIME WARNING\033[0m]%s\n" "$1"  
-}  
-  
-fail() {  
-    printf "\r[ \033[0;31m$DATETIME ERROR\033[0m ]%s\n" "$1"  
+success() {
+    printf "\r$DATETIME [ \033[00;32mINFO\033[0m ]%s\n" "$1"
+}
+
+warn() {
+    printf "\r$DATETIME [\033[0;33mWARNING\033[0m]%s\n" "$1"
+}
+
+fail() {
+    printf "\r$DATETIME [ \033[0;31mERROR\033[0m ]%s\n" "$1"
 }  
   
 usage() {  
@@ -76,7 +76,19 @@ log() {
        usage  
     fi  
 }  
-  
+
+is_exist_expect() {
+    if ! which expect &> /dev/null; then
+        return 1
+    fi
+
+    return 0
+}
+
+install_expect() {
+    yum -y install expect &> /dev/null
+}
+
 get_cipher() {  
     local IP=$1  
   
@@ -161,7 +173,20 @@ EOF
 }  
   
   
-# main  
+# main
+is_exist_expect
+if [ $? -eq 1 ]; then
+    log warn "No expect command and try to install, please wait..."
+    install_expect
+    is_exist_expect
+    if [ $? -eq 1 ]; then
+        log err "Installation failed, please install the expect command manually."
+        exit 1
+    else
+        log info "Installation successed."
+    fi
+fi
+
 for ip in ${!IPListDict[@]}; do  
     if [[ X"$ip" == X"${LOCAL_IP}" ]]; then  
         generate_ssh_key  
