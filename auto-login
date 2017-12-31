@@ -30,10 +30,10 @@ IPListDict=(
 ssh_keygen="/usr/bin/ssh-keygen"
 ssh_key_type="rsa"
 ssh_pwd=''
-ssh_key_bash_dir=~/.ssh
-ssh_pri_key=$ssh_key_bash_dir/id_rsa
-ssh_pub_key=$ssh_key_bash_dir/id_rsa.pub
-ssh_known_hosts=$ssh_key_bash_dir/known_hosts
+ssh_key_base_dir=~/.ssh
+ssh_pri_key=$ssh_key_base_dir/id_rsa
+ssh_pub_key=$ssh_key_base_dir/id_rsa.pub
+ssh_known_hosts=$ssh_key_base_dir/known_hosts
 ssh_copy_id="/usr/bin/ssh-copy-id"
 
 DATETIME=`date "+%F %T"`
