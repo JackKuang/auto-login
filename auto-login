@@ -82,12 +82,8 @@ log() {
     fi
 }
 
-is_exist_expect() {
-    if ! which expect &> /dev/null; then
-        return 1
-    fi
-
-    return 0
+command_exists() {
+	command -v "$@" > /dev/null 2>&1
 }
 
 install_expect() {
@@ -95,12 +91,10 @@ install_expect() {
 }
 
 check_expect() {
-    is_exist_expect
-    if [ $? -eq 1 ]; then
+    if ! command_exists expect; then
         log warn "No expect command and try to install, please wait..."
         install_expect
-        is_exist_expect
-        if [ $? -eq 1 ]; then
+        if ! command_exists expect; then
             log err "Installation failed, please install the expect command manually."
             exit 1
         else
