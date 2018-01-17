@@ -17,7 +17,6 @@
 # definition IP dictionary array
 declare -A IPListDict
 
-LOCAL_IP="192.168.2.3"
 USER_NAME="root"
 
 # 主机IP地址和密码，每行一个主机
@@ -189,10 +188,7 @@ EOF
 
 # main
 check_expect
+generate_ssh_key
 for ip in ${!IPListDict[@]}; do
-    if [[ X"$ip" == X"${LOCAL_IP}" ]]; then
-        generate_ssh_key
-        continue
-    fi
     copy_pub_key $ip
 done
