@@ -21,8 +21,8 @@ USER_NAME="root"
 
 # 主机IP地址和密码，每行一个主机
 IPListDict=(
-[192.168.2.3]="secret"
-[192.168.2.4]="secret"
+[192.168.2.3:22]="secret"
+[192.168.2.4:22018]="secret"
 )
 
 # for ssh
@@ -104,9 +104,10 @@ check_expect() {
 
 get_cipher() {
     local IP=$1
+    local PORT=$2
 
     for key in ${!IPListDict[@]}; do
-        if [[ X"$IP" == X"$key" ]]; then
+        if [[ X"$IP:$PORT" == X"$key" ]]; then
             PASSWORD="${IPListDict[$key]}"
         fi
     done
@@ -148,6 +149,7 @@ generate_ssh_key() {
 
 copy_pub_key() {
    local IP=$1
+   local PORT=$2
 
    if [ -f ${ssh_known_hosts} ]; then
        is_exist $IP
@@ -156,10 +158,10 @@ copy_pub_key() {
        fi
    fi
    
-   get_cipher $IP
+   get_cipher $IP $PORT
    
    expect -c <<- EOF &> /dev/null "
-       spawn $ssh_copy_id -i "$ssh_pub_key" $USER_NAME@$IP
+       spawn $ssh_copy_id -i "$ssh_pub_key" -p $PORT $USER_NAME@$IP
        expect {
             \"(yes/no)?\" {
                 send \"yes\r\"
@@ -189,6 +191,9 @@ EOF
 # main
 check_expect
 generate_ssh_key
-for ip in ${!IPListDict[@]}; do
-    copy_pub_key $ip
+for element in ${!IPListDict[@]}; do
+    IP=`echo "$element" | cut -d':' -f1`
+    PORT=`echo "$element" | cut -d':' -f2`
+
+    copy_pub_key $IP $PORT
 done
